@@ -103,25 +103,12 @@ class KucoinAPIClient {
         }
     }
 
-    async checkProxyIP(proxy) {
-        try {
-            const proxyAgent = new HttpsProxyAgent(proxy);
-            const response = await axios.get('https://api.ipify.org?format=json', { httpsAgent: proxyAgent });
-            if (response.status === 200) {
-                return response.data.ip;
-            } else {
-                throw new Error(`Không thể kiểm tra IP của proxy. Status code: ${response.status}`);
-            }
-        } catch (error) {
-            throw new Error(`Error khi kiểm tra IP của proxy: ${error.message}`);
-        }
-    }
-
     async main(cookie, proxy) {
 
         while (true) {
             let proxyAgent = null;
             if (proxy) {
+
                 proxyAgent = new HttpsProxyAgent(proxy);
             }
 
@@ -184,5 +171,6 @@ if (proxies.length === 0) {
 }
 
 for (let i = 0; i < cookies.length; i++) {
-    promises.push(new KucoinAPIClient(i + 1).main(cookies[i], proxies[i]));
+    let proxy = `http://${proxies[i].split(':')[2]}:${proxies[i].split(':')[3]}@${proxies[i].split(':')[0]}:${proxies[i].split(':')[1]}`;
+    promises.push(new KucoinAPIClient(i + 1).main(cookies[i], proxy));
 }
